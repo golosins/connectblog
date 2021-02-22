@@ -1,0 +1,163 @@
+/*
+************** Shortcodes  for Blog ****************
+  Add this code into functions.php file
+  Usage:
+    [all-posts] - All posts
+    [home-posts] - Last posts for page section
+****************************************************    
+*/
+
+function xtx_blog_posts_shortcode($atts, $content = NULL)
+{
+
+    function excerpt( $limit ) {
+		$excerpt = explode(' ', get_the_excerpt(), $limit);
+		if (count($excerpt)>=$limit) {
+		array_pop($excerpt);
+		$excerpt = implode(" ",$excerpt).'...';
+		} else {
+		$excerpt = implode(" ",$excerpt);
+		}
+		$excerpt = preg_replace('`[[^]]*]`','',$excerpt);
+		return $excerpt;
+		}
+		function content($limit) {
+		$content = explode(' ', get_the_content(), $limit);
+		if (count($content)>=$limit) {
+		array_pop($content);
+		$content = implode(" ",$content).'...';
+		} else {
+		$content = implode(" ",$content);
+		}
+		$content = preg_replace('/[.+]/','', $content);
+		$content = apply_filters('the_content', $content);
+		$content = str_replace(']]>', ']]&gt;', $content);
+		return $content;
+	}
+			
+
+	$paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
+	$ID = url_to_postid('14');
+	$exclude = "'" . $atts['exclude'] . "'";
+	//return $user_info->user_email;
+	
+    $atts = shortcode_atts(
+        [
+            'orderby' => 'date',
+			'posts_per_page' => '8',
+			'cat' => $exclude,
+			'paged' => $paged
+        ], $atts, 'all-posts' );
+     
+    $query = new WP_Query( $atts );
+ 
+    $output = '<div class="blog-posts">';
+ 
+    while($query->have_posts()) : $query->the_post();
+ 
+        $output .= '<div class="post-entry"><a class="blog-title" href="' . get_permalink() . '"><h2 class="pageSubTitle">' . get_the_title() . '</h2></a> &nbsp;';
+		//$output .= '<small>Posted on ' . get_the_date() . '</small>';
+		if ( has_post_thumbnail() ) {
+			$output .= get_the_post_thumbnail();
+		}
+		else {
+	//		$output .=  '<img src="https://plasticeyesurgery.com/wp-content/uploads/2020/01/DoctorsCard2.jpg" alt="" />';
+		}
+	
+				$output .= '<div class="commonText">'. apply_filters( 'the_excerpt', excerpt(200) ) .'</div>';
+		$output .= '<div class="read-more-container"><a class="blog-read pageSubTitle2" href="'. get_permalink() .'">Read More &#8594;</a></div></div>';
+
+		$output .= '<hr class="spacer">';
+		
+	
+	$post_id = get_the_ID();
+	$category = get_the_category($post_id);
+	$cat_name = $category[0]->name;
+	$output .= '<p><i class="far fa-folder"></i> ' . $cat_name . '</p>';
+    endwhile;
+ 
+		$pagination = '<div class="pagination">';
+ 
+        $pagination .= paginate_links( array(
+            'base'         => str_replace( 999999999, '%#%', esc_url( get_pagenum_link( 999999999 ) ) ),
+            'total'        => $query->max_num_pages,
+            'current'      => max( 1, get_query_var( 'paged' ) ),
+            'format'       => '?paged=%#%',
+            'show_all'     => false,
+            'type'         => 'plain',
+            'end_size'     => 2,
+            'mid_size'     => 1,
+            'prev_next'    => true,
+            'prev_text'    => sprintf( '<i></i> %1$s', __( 'Newer Posts', 'text-domain' ) ),
+            'next_text'    => sprintf( '%1$s <i></i>', __( 'Older Posts', 'text-domain' ) ),
+            'add_args'     => false,
+            'add_fragment' => '',
+        ) );
+    
+		$pagination .= '</div>';
+	
+    wp_reset_query();
+ 
+    return $output . '</div>' . $pagination;
+}
+add_shortcode('all-posts', 'xtx_blog_posts_shortcode');
+
+function xtx_home_posts_shortcode($atts, $content = NULL)
+{
+	$paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
+    $atts = shortcode_atts(
+        [
+            'orderby' => 'date',
+            'posts_per_page' => '2',
+			'paged' => $paged
+        ], $atts, 'recent-posts' );
+     
+    $query = new WP_Query( $atts );
+ 
+    $output = '<ul class="recent-posts">';
+ 
+    while($query->have_posts()) : $query->the_post();
+ 
+        $output .= '<li class="post-entry"><a href="' . get_permalink() . '"><h3>' . get_the_title() . '</h3></a>';
+	
+		if ( has_post_thumbnail() ) {
+			$output .= get_the_post_thumbnail();			
+		}
+		else {
+			$output .=  '<img src="https://plasticeyesurgery.com/wp-content/uploads/2020/01/DoctorsCard2.jpg" alt="" />';
+		}
+	            $post_excerpt =  apply_filters( 'the_excerpt', get_the_excerpt());
+				$output .= '<br>'. substr($post_excerpt,0,200) .'...<br><small><br>' . get_the_date() . '<br></small>'; 					
+//				$output .= '<br>'. apply_filters( 'the_excerpt', get_the_excerpt() ) .' - <small>' . get_the_date() . '</small>';
+		$output .= '<br><a href="'. get_permalink() .'">Read More</a></li>';
+
+	
+    endwhile;
+ 
+		$pagination = '<div class="pagination">';
+ 
+        $pagination .= paginate_links( array(
+            'base'         => str_replace( 999999999, '%#%', esc_url( get_pagenum_link( 999999999 ) ) ),
+            'total'        => $query->max_num_pages,
+            'current'      => max( 1, get_query_var( 'paged' ) ),
+            'format'       => '?paged=%#%',
+            'show_all'     => false,
+            'type'         => 'plain',
+            'end_size'     => 2,
+            'mid_size'     => 1,
+            'prev_next'    => true,
+            'prev_text'    => sprintf( '<i></i> %1$s', __( 'Newer Posts', 'text-domain' ) ),
+            'next_text'    => sprintf( '%1$s <i></i>', __( 'Older Posts', 'text-domain' ) ),
+            'add_args'     => false,
+            'add_fragment' => '',
+        ) );
+    
+		$pagination .= '</div>';
+	
+    wp_reset_query();
+ 
+    return $output . '</ul>';
+}
+add_shortcode('home-posts', 'xtx_home_posts_shortcode');
+
+
