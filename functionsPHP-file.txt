@@ -7,7 +7,7 @@
 ****************************************************    
 */
 
-function xtx_blog_posts_shortcode($atts, $content = NULL)
+function mytheme_blog_posts_shortcode($atts, $content = NULL)
 {
 
     function excerpt( $limit ) {
@@ -61,7 +61,8 @@ function xtx_blog_posts_shortcode($atts, $content = NULL)
 			$output .= get_the_post_thumbnail();
 		}
 		else {
-	//		$output .=  '<img src="https://plasticeyesurgery.com/wp-content/uploads/2020/01/DoctorsCard2.jpg" alt="" />';
+	//  Default Picture	
+	//		$output .=  '<img src="https://mywebsite.com/wp-content/uploads/2021/04/DefaultPostPic.jpg" alt="" />';
 		}
 	
 				$output .= '<div class="commonText">'. apply_filters( 'the_excerpt', excerpt(200) ) .'</div>';
@@ -100,9 +101,9 @@ function xtx_blog_posts_shortcode($atts, $content = NULL)
  
     return $output . '</div>' . $pagination;
 }
-add_shortcode('all-posts', 'xtx_blog_posts_shortcode');
+add_shortcode('all-posts', 'mytheme_blog_posts_shortcode');
 
-function xtx_home_posts_shortcode($atts, $content = NULL)
+function mytheme_home_posts_shortcode($atts, $content = NULL)
 {
 	$paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
     $atts = shortcode_atts(
@@ -124,7 +125,8 @@ function xtx_home_posts_shortcode($atts, $content = NULL)
 			$output .= get_the_post_thumbnail();			
 		}
 		else {
-			$output .=  '<img src="https://plasticeyesurgery.com/wp-content/uploads/2020/01/DoctorsCard2.jpg" alt="" />';
+	//  Default Picture	
+	//		$output .=  '<img src="https://mywebsite.com/wp-content/uploads/2021/04/DefaultPostPic.jpg" alt="" />';
 		}
 	            $post_excerpt =  apply_filters( 'the_excerpt', get_the_excerpt());
 				$output .= '<br>'. substr($post_excerpt,0,200) .'...<br><small><br>' . get_the_date() . '<br></small>'; 					
@@ -158,7 +160,7 @@ function xtx_home_posts_shortcode($atts, $content = NULL)
  
     return $output . '</ul>';
 }
-add_shortcode('home-posts', 'xtx_home_posts_shortcode');
+add_shortcode('home-posts', 'mytheme_home_posts_shortcode');
 
 
 /**
